@@ -7,7 +7,11 @@
  * Le origini consentite vengono lette dal .env da DUE variabili
  * (entrambe ammettono più origini separate da virgola):
  *   - FRONTEND_URL          (es. sviluppo: http://localhost:3000)
- *   - FRONTEND_PUBLIC_URL   (es. produzione: https://sciclub-adrano.pages.dev)
+ *   - FRONTEND_PUBLIC_URL   (es. produzione: https://website.sciclubadrano.workers.dev)
+ *
+ * Alle origini del .env si aggiunge sempre l'origine pubblica di produzione
+ * definita in DEFAULT_PUBLIC_ORIGINS, così il frontend live è autorizzato
+ * anche se la variabile d'ambiente non è aggiornata.
  *
  * NON viene mai usato "*": le origini sono sempre esplicite.
  */
@@ -55,10 +59,17 @@ function parseOrigins(...values) {
   return [...set];
 }
 
-const allowedOrigins = parseOrigins(
-  process.env.FRONTEND_URL,
-  process.env.FRONTEND_PUBLIC_URL
-);
+/** Origini pubbliche di produzione sempre consentite (frontend Cloudflare). */
+const DEFAULT_PUBLIC_ORIGINS = [
+  "https://website.sciclubadrano.workers.dev",
+];
+
+const allowedOrigins = [
+  ...new Set([
+    ...parseOrigins(process.env.FRONTEND_URL, process.env.FRONTEND_PUBLIC_URL),
+    ...DEFAULT_PUBLIC_ORIGINS,
+  ]),
+];
 const isProduction = process.env.NODE_ENV === "production";
 
 const corsOptions = {

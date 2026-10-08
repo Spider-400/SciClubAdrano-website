@@ -6,12 +6,15 @@
   const submitButton = form.querySelector('button[type="submit"]');
 
   /**
-   * URL del backend Node.js (stesso schema di tesseramento-fisi.js).
-   * In produzione impostare window.SCICLUB_API_BASE prima di questo script.
+   * URL del backend Node.js (Render production), stesso schema di
+   * tesseramento-fisi.js. Endpoint usato: POST {API_BASE}/api/contact
+   *
+   * Sovrascrivibile (es. verso un backend di sviluppo) impostando
+   * window.SCICLUB_API_BASE PRIMA di caricare questo script.
    */
   const API_BASE = (
     (typeof window !== "undefined" && window.SCICLUB_API_BASE) ||
-    "http://localhost:3000"
+    "https://sci-club-adrano-backend.onrender.com"
   ).replace(/\/+$/, "");
 
   const value = (data, key) => (data.get(key) || "").toString().trim();
@@ -60,7 +63,10 @@
     try {
       const response = await fetch(API_BASE + "/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(payload),
       });
 
@@ -74,8 +80,13 @@
       if (!response.ok || !result || !result.success) {
         const fieldMessage =
           result && result.fields ? Object.values(result.fields)[0] : null;
-        console.warn("[CONTATTI] Invio rifiutato:", fieldMessage || (result && result.error));
-        setStatus("Impossibile inviare il messaggio. Riprova.", "is-error");
+        // Log tecnico interno (status HTTP), mai mostrato all'utente.
+        console.warn(
+          "[CONTATTI] Invio rifiutato:",
+          response.status,
+          fieldMessage || (result && result.error)
+        );
+        setStatus("Impossibile inviare il messaggio. Riprova tra poco.", "is-error");
         return; // il form NON viene svuotato in caso di errore
       }
 

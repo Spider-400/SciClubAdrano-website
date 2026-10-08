@@ -6,16 +6,15 @@
   const submitButton = form.querySelector('button[type="submit"]');
 
   /**
-   * URL del backend Node.js.
-   * - In sviluppo il backend gira su http://localhost:3000
-   * - In produzione puoi impostare l'URL pubblico da qualsiasi punto prima
-   *   di questo script, ad esempio:
-   *       <script>window.SCICLUB_API_BASE = "https://api.sciclubadrano.it";</script>
-   *   oppure modificare direttamente il valore di fallback qui sotto.
+   * URL del backend Node.js (Render production).
+   * Endpoint usato dal modulo: POST {API_BASE}/api/fisi
+   *
+   * L'URL può essere sovrascritto (es. verso un backend di sviluppo)
+   * impostando window.SCICLUB_API_BASE PRIMA di caricare questo script.
    */
   const API_BASE = (
     (typeof window !== "undefined" && window.SCICLUB_API_BASE) ||
-    "http://localhost:3000"
+    "https://sci-club-adrano-backend.onrender.com"
   ).replace(/\/+$/, "");
 
   const value = (data, key) => (data.get(key) || "").toString().trim();
@@ -75,7 +74,10 @@
       console.log("[FISI] Invio richiesta al backend...");
       const response = await fetch(API_BASE + "/api/fisi", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(payload),
       });
       console.log("[FISI] Risposta backend:", response.status);
@@ -93,8 +95,9 @@
         const message =
           fieldMessage ||
           (result && result.error) ||
-          "Errore del server (HTTP " + response.status + ").";
-        console.warn("[FISI] Richiesta rifiutata:", message);
+          "Non è stato possibile inviare la richiesta. Riprova tra poco.";
+        // Log tecnico interno (status HTTP), mai mostrato all'utente.
+        console.warn("[FISI] Richiesta rifiutata:", response.status, message);
         setStatus(message, "is-error");
         return; // il form NON viene svuotato in caso di errore
       }
@@ -105,7 +108,7 @@
     } catch (error) {
       console.error("[FISI] Errore di rete:", error);
       setStatus(
-        "Impossibile contattare il server. Verifica la connessione e riprova.",
+        "Non è stato possibile inviare la richiesta. Controlla la connessione e riprova.",
         "is-error"
       );
     } finally {
