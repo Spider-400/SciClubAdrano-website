@@ -1,0 +1,103 @@
+# ============================================================
+#  SCI CLUB ADRANO — .gitignore
+# ============================================================
+
+# ------------------------------------------------------------
+# VARIABILI D'AMBIENTE / SEGRETI  (MAI su GitHub)
+# Ignora tutti i .env ma mantieni gli esempi .env.example
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets.json
+credentials.json
+
+# ------------------------------------------------------------
+# NODE.JS
+# ------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm/
+.yarn/
+package-lock.json.bak
+
+# ------------------------------------------------------------
+# LOG E FILE TEMPORANEI
+# ------------------------------------------------------------
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# ------------------------------------------------------------
+# DATABASE — dump e backup locali
+# (NON ignorare schema.sql / init.js)
+# ------------------------------------------------------------
+*.sql.gz
+*.dump
+*.sqlite
+*.sqlite3
+*.db
+database/backup/
+database/backups/
+backup/
+backups/
+
+# ------------------------------------------------------------
+# UPLOAD / FILE GENERATI DAGLI UTENTI
+# ------------------------------------------------------------
+uploads/
+public/uploads/
+storage/
+
+# ------------------------------------------------------------
+# BUILD / COVERAGE
+# ------------------------------------------------------------
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+.cache/
+
+# ------------------------------------------------------------
+# AMBIENTI VIRTUALI PYTHON (se in futuro servisse)
+# ------------------------------------------------------------
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# ------------------------------------------------------------
+# SISTEMA OPERATIVO
+# ------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ------------------------------------------------------------
+# EDITOR / IDE
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace

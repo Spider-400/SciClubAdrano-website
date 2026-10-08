@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#11171e" />
+    <title>Pannello Admin — Sci Club Adrano</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <!-- ================= LOGIN ================= -->
+    <div id="loginView" class="login-view">
+      <div class="login-panel">
+        <div class="login-brand">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>
+            <strong>SCI CLUB ADRANO</strong>
+            <small>Pannello di amministrazione</small>
+          </span>
+        </div>
+        <h1>Area riservata</h1>
+        <p class="login-sub">Accedi per gestire tesseramenti e messaggi.</p>
+
+        <form id="loginForm" autocomplete="on">
+          <label class="field">
+            <span>Username</span>
+            <input id="loginUsername" name="username" type="text" autocomplete="username" required />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <p class="form-error" id="loginError" role="alert"></p>
+          <button class="btn btn-primary" type="submit" id="loginButton">Accedi</button>
+        </form>
+      </div>
+      <div class="login-aside" aria-hidden="true">
+        <p class="login-quote">“La montagna insegna<br />a guardare avanti.”</p>
+        <p class="login-meta">A.S.D. · ETNA · DAL 1976</p>
+      </div>
+    </div>
+
+    <!-- ================= APP ================= -->
+    <div id="appView" class="app is-hidden">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>
+            <strong>SCI CLUB<br />ADRANO</strong>
+            <small>Admin Panel</small>
+          </span>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Sezioni pannello">
+          <button class="nav-item is-active" data-view="dashboard" type="button">
+            <span class="nav-icon" aria-hidden="true">▦</span> Dashboard
+          </button>
+          <button class="nav-item" data-view="tesseramenti" type="button">
+            <span class="nav-icon" aria-hidden="true">🎫</span> Tesseramenti
+            <span class="nav-badge" id="navTessBadge"></span>
+          </button>
+          <button class="nav-item" data-view="messaggi" type="button">
+            <span class="nav-icon" aria-hidden="true">✉</span> Messaggi
+            <span class="nav-badge" id="navMsgBadge"></span>
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="user-chip">
+            <span class="avatar" aria-hidden="true">SA</span>
+            <span id="userLabel">admin</span>
+          </div>
+          <button class="btn btn-ghost" type="button" id="logoutButton">Logout</button>
+        </div>
+      </aside>
+
+      <div class="main">
+        <header class="topbar">
+          <button class="hamburger" type="button" id="menuButton" aria-label="Apri menu">☰</button>
+          <h1 id="viewTitle">Dashboard</h1>
+          <div class="topbar-actions">
+            <span class="updated" id="updatedLabel"></span>
+            <button class="btn btn-outline" type="button" id="refreshButton">🔄 Aggiorna</button>
+          </div>
+        </header>
+
+        <div class="content">
+          <!-- DASHBOARD -->
+          <section id="view-dashboard" class="view">
+            <div class="stat-grid" id="statGrid">
+              <div class="stat-card"><span class="stat-label">📋 Tesseramenti totali</span><strong data-stat="totale">—</strong></div>
+              <div class="stat-card stat-card--accent"><span class="stat-label">🆕 Nuove richieste</span><strong data-stat="nuovi">—</strong></div>
+              <div class="stat-card"><span class="stat-label">⏳ In elaborazione</span><strong data-stat="in_elaborazione">—</strong></div>
+              <div class="stat-card"><span class="stat-label">✅ Completati</span><strong data-stat="completati">—</strong></div>
+              <div class="stat-card"><span class="stat-label">✉️ Messaggi ricevuti</span><strong data-stat="messaggi">—</strong></div>
+              <div class="stat-card statistic-card--warn"><span class="stat-label">⚠️ Email non inviate</span><strong data-stat="email_fallite">—</strong></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <h2>Ultima richiesta</h2>
+                <span class="panel-date" id="ultimaRichiesta">—</span>
+              </div>
+              <p class="muted" id="ultimaRichiestaMeta">Nessun dato disponibile.</p>
+            </div>
+          </section>
+
+          <!-- TESSERAMENTI -->
+          <section id="view-tesseramenti" class="view is-hidden">
+            <div class="toolbar">
+              <input type="search" id="searchTess" class="input" placeholder="Cerca nome, cognome, email, CF..." />
+              <select id="filterStato" class="input">
+                <option value="">Tutti gli stati</option>
+                <option value="nuovo">Nuovo</option>
+                <option value="in_elaborazione">In elaborazione</option>
+                <option value="completato">Completato</option>
+                <option value="annullato">Annullato</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th><th>Nome</th><th>Cognome</th><th>Tipo tessera</th>
+                    <th>Email</th><th>Invio Email</th><th>Stato</th><th>Data</th><th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody id="tessBody">
+                  <tr><td colspan="9" class="empty">Caricamento...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- MESSAGGI -->
+          <section id="view-messaggi" class="view is-hidden">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>ID</th><th>Nome</th><th>Email</th><th>Anteprima messaggio</th><th>Data</th><th>Stato</th><th>Azioni</th></tr>
+                </thead>
+                <tbody id="msgBody">
+                  <tr><td colspan="7" class="empty">Caricamento...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODALE ================= -->
+    <div id="modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h2 id="modalTitle">Dettagli</h2>
+          <button class="modal-close" type="button" id="modalClose" aria-label="Chiudi">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
