@@ -1,5 +1,6 @@
 const header = document.querySelector('[data-header]');
 const menuButton = document.querySelector('.menu-toggle');
+const menuButtonLabel = menuButton.querySelector('.sr-only');
 const navigation = document.querySelector('.main-nav');
 
 const updateHeader = () => header.classList.toggle('is-scrolled', window.scrollY > 24);
@@ -10,6 +11,7 @@ function closeMenu() {
   navigation.classList.remove('is-open');
   menuButton.classList.remove('is-open');
   menuButton.setAttribute('aria-expanded', 'false');
+  menuButtonLabel.textContent = 'Apri il menu';
   document.body.classList.remove('nav-open');
 }
 
@@ -17,6 +19,7 @@ menuButton.addEventListener('click', () => {
   const isOpen = navigation.classList.toggle('is-open');
   menuButton.classList.toggle('is-open', isOpen);
   menuButton.setAttribute('aria-expanded', String(isOpen));
+  menuButtonLabel.textContent = isOpen ? 'Chiudi il menu' : 'Apri il menu';
   document.body.classList.toggle('nav-open', isOpen);
 });
 
