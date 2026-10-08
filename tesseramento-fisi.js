@@ -6,15 +6,22 @@
   const submitButton = form.querySelector('button[type="submit"]');
 
   /**
-   * URL del backend Node.js (Render production).
-   * Endpoint usato dal modulo: POST {API_BASE}/api/fisi
-   *
-   * L'URL può essere sovrascritto (es. verso un backend di sviluppo)
-   * impostando window.SCICLUB_API_BASE PRIMA di caricare questo script.
+   * URL del backend Node.js.
+   * - Produzione (sito su Cloudflare Workers): SEMPRE Render.
+   * - Sviluppo locale (hostname localhost/127.0.0.1): backend locale.
+   * - Sovrascrittura manuale possibile impostando window.SCICLUB_API_BASE
+   *   PRIMA di caricare questo script.
+   * Il fallback localhost è raggiungibile SOLO quando il sito viene aperto
+   * da localhost/127.0.0.1, mai dal sito pubblicato.
    */
+  const isLocalDev =
+    typeof window !== "undefined" &&
+    ["localhost", "127.0.0.1"].includes(window.location.hostname);
   const API_BASE = (
     (typeof window !== "undefined" && window.SCICLUB_API_BASE) ||
-    "https://sci-club-adrano-backend.onrender.com"
+    (isLocalDev
+      ? "http://localhost:3000"
+      : "https://sci-club-adrano-backend.onrender.com")
   ).replace(/\/+$/, "");
 
   const value = (data, key) => (data.get(key) || "").toString().trim();
@@ -72,6 +79,7 @@
 
     try {
       console.log("[FISI] Invio richiesta al backend...");
+      // Richiesta al backend: API_BASE punta a Render in produzione.
       const response = await fetch(API_BASE + "/api/fisi", {
         method: "POST",
         headers: {
