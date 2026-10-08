@@ -39,6 +39,12 @@ if (emailEnabled) {
     port: SMTP_PORT,
     secure: SMTP_SECURE,
     auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
+    // Timeout ESPLICITI: senza questi Nodemailer usa i default (connessione
+    // 2 min, socket 10 min) e una richiesta poteva restare appesa a lungo.
+    // Con questi valori l'invio fallisce in fretta e non blocca il frontend.
+    connectionTimeout: 15000, // 15s per stabilire la connessione TCP
+    greetingTimeout: 15000, // 15s per ricevere il saluto SMTP
+    socketTimeout: 30000, // 30s di inattività massima sul socket
   });
 }
 

@@ -30,6 +30,36 @@ const INSERT_SQL = `
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
+/**
+ * Invia la notifica email in background, SENZA bloccare la risposta HTTP.
+ * Il tesseramento è già salvato: se l'email fallisce il record resta e
+ * `email_inviata` rimane 0. Il log è sicuro (nessun dato personale, nessuna
+ * credenziale).
+ */
+function queueTesseramentoEmail(id, data) {
+  sendTesseramentoEmail(data)
+    .then((email) => {
+      if (!email.sent) {
+        console.error(
+          `[EMAIL] Invio non riuscito per tesseramento id=${id}: ${email.error}`
+        );
+        return null;
+      }
+      return pool
+        .query("UPDATE tesseramenti SET email_inviata = 1 WHERE id = ?", [id])
+        .catch((error) => {
+          console.error(
+            `[EMAIL] Tesseramento id=${id} inviato ma aggiornamento email_inviata fallito: ${error.message}`
+          );
+        });
+    })
+    .catch((error) => {
+      console.error(
+        `[EMAIL] Errore imprevisto per tesseramento id=${id}: ${error.message}`
+      );
+    });
+}
+
 router.post("/", formLimiter, async (req, res, next) => {
   try {
     const { valid, errors, data } = validateTesseramento(req.body);
@@ -64,19 +94,14 @@ router.post("/", formLimiter, async (req, res, next) => {
     const [result] = await pool.query(INSERT_SQL, params);
     const id = result.insertId;
 
-    const email = await sendTesseramentoEmail(data);
-    if (email.sent) {
-      await pool.query("UPDATE tesseramenti SET email_inviata = 1 WHERE id = ?", [id]);
-    } else {
-      console.error(
-        `[EMAIL] Invio non riuscito per tesseramento id=${id}: ${email.error}`
-      );
-    }
+    // L'email NON deve bloccare la risposta HTTP (bug: un timeout SMTP di
+    // 120s lasciava il frontend su "Invio in corso..."). Il record è già
+    // salvato; l'invio avviene in background e non incide sul tesseramento.
+    queueTesseramentoEmail(id, data);
 
     return res.status(201).json({
       success: true,
       message: "Richiesta di tesseramento ricevuta.",
-      emailSent: email.sent,
     });
   } catch (error) {
     return next(error);

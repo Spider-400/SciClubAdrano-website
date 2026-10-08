@@ -21,6 +21,24 @@ const { sendMessaggioEmail } = require("../services/email");
 
 const router = express.Router();
 
+/**
+ * Invia la notifica email in background, SENZA bloccare la risposta HTTP.
+ * Il messaggio è già salvato: se l'email fallisce, il record resta in Admin.
+ */
+function queueMessaggioEmail(id, payload) {
+  sendMessaggioEmail(payload)
+    .then((email) => {
+      if (!email.sent) {
+        console.error(`[EMAIL] Messaggio id=${id} non inviato: ${email.error}`);
+      }
+    })
+    .catch((error) => {
+      console.error(
+        `[EMAIL] Errore imprevisto per messaggio id=${id}: ${error.message}`
+      );
+    });
+}
+
 /* ------------------------------------------------------------------ */
 /* POST / (montato su /api/contact) — pubblico                        */
 /* ------------------------------------------------------------------ */
@@ -43,10 +61,8 @@ router.post("/", formLimiter, async (req, res, next) => {
     );
     const dataCreazione = rows.length ? rows[0].data_creazione : null;
 
-    const email = await sendMessaggioEmail({ ...data, data_creazione: dataCreazione });
-    if (!email.sent) {
-      console.error(`[EMAIL] Messaggio id=${result.insertId} non inviato: ${email.error}`);
-    }
+    // L'email non deve bloccare la risposta HTTP: invio in background.
+    queueMessaggioEmail(result.insertId, { ...data, data_creazione: dataCreazione });
 
     return res.status(201).json({
       success: true,
