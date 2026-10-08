@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sci Club Adrano">
+  <rect width="64" height="64" rx="10" fill="#11171e" />
+  <g stroke="#f15428" stroke-width="7" stroke-linecap="round">
+    <line x1="16" y1="19" x2="48" y2="19" />
+    <line x1="16" y1="32" x2="38" y2="32" />
+    <line x1="16" y1="45" x2="48" y2="45" />
+  </g>
+</svg>
