@@ -257,20 +257,23 @@ EMAIL_FROM="Sci Club Adrano <tuo.indirizzo@gmail.com>"
 ## 12. Collegamento del frontend
 
 Il modulo `tesseramento-fisi.js` invia i dati a `POST /api/fisi` tramite `fetch`.
-L'URL del backend si configura in due modi:
+L'URL del backend (`API_BASE`) viene determinato automaticamente in base
+all'hostname della pagina:
 
-1. **Variabile globale** (consigliato in produzione), da inserire nell'HTML prima
-   dello script:
+- **Produzione** (frontend su `https://website.sciclubadrano.workers.dev`):
+  usa sempre `https://sci-club-adrano-backend.onrender.com`.
+- **Sviluppo locale** (hostname `localhost` / `127.0.0.1`): usa
+  `http://localhost:3000`.
+
+Override manuale opzionale (da inserire nell'HTML prima dello script, ad es.
+per puntare a un backend di test):
 
 ```html
-<script>window.SCICLUB_API_BASE = "https://api.tuo-dominio.it";</script>
+<script>window.SCICLUB_API_BASE = "https://sci-club-adrano-backend.onrender.com";</script>
 ```
 
-2. **Fallback nel codice**: in `tesseramento-fisi.js` la costante `API_BASE`
-   usa `http://localhost:3000` se la variabile globale non è definita.
-
-Ricorda di aggiungere l'origine del frontend in `FRONTEND_URL` (`.env`) perché
-il CORS la autorizzi.
+Ricorda di aggiungere l'origine del frontend in `FRONTEND_URL` / `FRONTEND_PUBLIC_URL`
+(`.env`) perché il CORS la autorizzi.
 
 ---
 
