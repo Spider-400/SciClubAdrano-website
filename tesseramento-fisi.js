@@ -6,23 +6,24 @@
   const submitButton = form.querySelector('button[type="submit"]');
 
   /**
-   * URL del backend Node.js.
-   * - Produzione (sito su Cloudflare Workers): SEMPRE Render.
-   * - Sviluppo locale (hostname localhost/127.0.0.1): backend locale.
-   * - Sovrascrittura manuale possibile impostando window.SCICLUB_API_BASE
-   *   PRIMA di caricare questo script.
-   * Il fallback localhost è raggiungibile SOLO quando il sito viene aperto
-   * da localhost/127.0.0.1, mai dal sito pubblicato.
+   * URL del backend.
+   * - Produzione (frontend su Cloudflare Workers): backend Render.
+   * - Sviluppo locale (localhost / 127.0.0.1 / file://): backend locale.
+   * Nessun fallback a localhost quando il frontend è online.
    */
+  const PROD_API_BASE = "https://sci-club-adrano-backend.onrender.com";
+  const DEV_API_BASE = "http://localhost:3000";
+  const currentHost =
+    typeof window !== "undefined" && window.location ? window.location.hostname : "";
+  const currentProtocol =
+    typeof window !== "undefined" && window.location ? window.location.protocol : "";
   const isLocalDev =
-    typeof window !== "undefined" &&
-    ["localhost", "127.0.0.1"].includes(window.location.hostname);
-  const API_BASE = (
-    (typeof window !== "undefined" && window.SCICLUB_API_BASE) ||
-    (isLocalDev
-      ? "http://localhost:3000"
-      : "https://sci-club-adrano-backend.onrender.com")
-  ).replace(/\/+$/, "");
+    currentProtocol === "file:" ||
+    currentHost === "" ||
+    currentHost === "localhost" ||
+    currentHost === "127.0.0.1" ||
+    currentHost === "::1";
+  const API_BASE = (isLocalDev ? DEV_API_BASE : PROD_API_BASE).replace(/\/+$/, "");
 
   const value = (data, key) => (data.get(key) || "").toString().trim();
 
@@ -79,13 +80,9 @@
 
     try {
       console.log("[FISI] Invio richiesta al backend...");
-      // Richiesta al backend: API_BASE punta a Render in produzione.
       const response = await fetch(API_BASE + "/api/fisi", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       console.log("[FISI] Risposta backend:", response.status);
@@ -103,9 +100,8 @@
         const message =
           fieldMessage ||
           (result && result.error) ||
-          "Non è stato possibile inviare la richiesta. Riprova tra poco.";
-        // Log tecnico interno (status HTTP), mai mostrato all'utente.
-        console.warn("[FISI] Richiesta rifiutata:", response.status, message);
+          "Errore del server (HTTP " + response.status + ").";
+        console.warn("[FISI] Richiesta rifiutata:", message);
         setStatus(message, "is-error");
         return; // il form NON viene svuotato in caso di errore
       }
@@ -116,7 +112,7 @@
     } catch (error) {
       console.error("[FISI] Errore di rete:", error);
       setStatus(
-        "Non è stato possibile inviare la richiesta. Controlla la connessione e riprova.",
+        "Impossibile contattare il server. Verifica la connessione e riprova.",
         "is-error"
       );
     } finally {
